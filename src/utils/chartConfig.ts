@@ -52,8 +52,7 @@ export class ChartConfigManager {
           line: {
             pointRadius: 0, // 全てのlineチャートでポイント非表示
             pointHoverRadius: 5,
-            pointBorderWidth: 0,
-            pointStyle: false
+            pointBorderWidth: 0
           }
         },
         interaction: {
@@ -64,7 +63,7 @@ export class ChartConfigManager {
           legend: {
             position: 'top',
             labels: {
-              usePointStyle: false, // ポイントスタイルを無効化
+              usePointStyle: true,
               padding: 15,
               font: {
                 family: 'system-ui, -apple-system, sans-serif',
@@ -159,34 +158,79 @@ export class ChartConfigManager {
   /**
    * 寄与度線グラフの設定
    */
-  static getContributionChartConfig(): ChartConfiguration<'line'> {
-    const commonConfig = this.getCommonConfig()
-    
-    return {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: []
-      },
-      options: {
-        ...commonConfig.options,
-        plugins: {
-          ...commonConfig.options?.plugins,
-          title: {
-            display: true,
-            text: '積み立てた年ごとの寄与度',
-            color: '#1e293b',
-            font: {
-              size: 16,
-              weight: 600
-            },
-            padding: 20
-          },
-          legend: {
-            ...commonConfig.options?.plugins?.legend,
-            display: false  // 寄与度チャートは凡例非表示
-          }
-        },
+   static getContributionChartConfig(): ChartConfiguration<'line'> {
+     const commonConfig = this.getCommonConfig()
+     
+     return {
+       type: 'line',
+       data: {
+         labels: [],
+         datasets: []
+       },
+       options: {
+         ...commonConfig.options,
+         plugins: {
+           ...commonConfig.options?.plugins,
+           title: {
+             display: true,
+             text: '積み立てた年ごとの寄与度',
+             color: '#1e293b',
+             font: {
+               size: 16,
+               weight: 600
+             },
+             padding: 20
+           },
+           legend: {
+             ...commonConfig.options?.plugins?.legend,
+             display: false  // グラフ上の凡例は非表示
+           },
+           tooltip: {
+             backgroundColor: 'rgba(15, 23, 42, 0.9)',
+             titleColor: '#f1f5f9',
+             bodyColor: '#e2e8f0',
+             borderColor: '#334155',
+             borderWidth: 1,
+             cornerRadius: 8,
+             padding: 12,
+             titleFont: {
+               size: 13,
+               weight: 600
+             },
+             bodyFont: {
+               size: 12
+             },
+             // ツールチップのラベルに色を表示
+             usePointStyle: true,
+             boxWidth: 12,
+             boxHeight: 12,
+             callbacks: {
+               title: function(context: TooltipItem<any>[]) {
+                 if (context.length > 0) {
+                   return `${context[0].label}年目`
+                 }
+                 return ''
+               },
+               label: function(context: TooltipItem<any>) {
+                 const value = context.parsed.y
+                 return `${context.dataset.label}: ${NumberFormatter.currency(value, { compact: true })}`
+               },
+               // ラベルの色をカスタマイズ
+               labelColor: function(context: TooltipItem<any>) {
+                 const dataset = context.dataset
+                 return {
+                   borderColor: dataset.borderColor || '#000',
+                   backgroundColor: dataset.borderColor || dataset.backgroundColor || '#000',
+                   borderWidth: 2,
+                   borderRadius: 2,
+                   borderDash: [],
+                   borderDashOffset: 0,
+                   display: true
+                 }
+               }
+             }
+           }
+         },
         scales: {
           x: {
             grid: {
@@ -249,8 +293,7 @@ export class ChartConfigManager {
             radius: 0, // 常時非表示
             hoverRadius: 0, // ホバー時も非表示
             borderWidth: 0, // ボーダーも非表示
-            backgroundColor: 'transparent', // 背景も透明
-            pointStyle: false // ポイントスタイル無効
+            backgroundColor: 'transparent' // 背景も透明
           }
         }
       }
@@ -260,35 +303,99 @@ export class ChartConfigManager {
   /**
    * 成長積み上げエリアチャートの設定
    */
-  static getGrowthChartConfig(): ChartConfiguration<'line'> {
-    const commonConfig = this.getCommonConfig()
-    
-    return {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: []
-      },
-      options: {
-        ...commonConfig.options,
-        plugins: {
-          ...commonConfig.options?.plugins,
-          title: {
-            display: true,
-            text: '積み立てた年ごとの全体への影響（積み上げグラフ）と元本累計（黒）',
-            color: '#1e293b',
-            font: {
-              size: 14,
-              weight: 600
-            },
-            padding: 20
-          },
-          legend: {
-            ...commonConfig.options?.plugins?.legend,
-            display: false, // 多数のデータセットがあるため凡例は非表示
-            position: 'bottom'
-          }
-        },
+   static getGrowthChartConfig(): ChartConfiguration<'line'> {
+     const commonConfig = this.getCommonConfig()
+     
+     return {
+       type: 'line',
+       data: {
+         labels: [],
+         datasets: []
+       },
+       options: {
+         ...commonConfig.options,
+         plugins: {
+           ...commonConfig.options?.plugins,
+           title: {
+             display: true,
+             text: '積み立てた年ごとの全体への影響（積み上げグラフ）と元本累計（黒）',
+             color: '#1e293b',
+             font: {
+               size: 14,
+               weight: 600
+             },
+             padding: 20
+           },
+           legend: {
+             ...commonConfig.options?.plugins?.legend,
+             display: false, // 多数のデータセットがあるため凡例は非表示
+             position: 'bottom',
+             labels: {
+               // 凡例を表示する場合の設定
+               usePointStyle: true, // ポイントスタイルを使用（丸にする）
+               pointStyle: 'circle', // 明示的に丸を指定
+               boxWidth: 10,
+               boxHeight: 10,
+               padding: 10,
+               generateLabels: (chart) => {
+                 const datasets = chart.data.datasets
+                 return datasets.map((dataset, i) => {
+                   const meta = chart.getDatasetMeta(i)
+                   const hidden = meta.hidden === null ? false : meta.hidden
+                   
+                   return {
+                     text: dataset.label || '',
+                     fillStyle: dataset.backgroundColor || dataset.borderColor,
+                     strokeStyle: dataset.borderColor,
+                     lineWidth: dataset.borderWidth || 1,
+                     hidden: hidden,
+                     index: i,
+                     pointStyle: 'circle', // 丸に統一
+                     rotation: 0
+                   }
+                 })
+               }
+             }
+           },
+           tooltip: {
+             // ツールチップの設定も統一
+             backgroundColor: 'rgba(15, 23, 42, 0.9)',
+             titleColor: '#f1f5f9',
+             bodyColor: '#e2e8f0',
+             borderColor: '#334155',
+             borderWidth: 1,
+             cornerRadius: 8,
+             padding: 12,
+             usePointStyle: true, // ツールチップも丸に
+             boxWidth: 10,
+             boxHeight: 10,
+             titleFont: {
+               size: 13,
+               weight: 600
+             },
+             bodyFont: {
+               size: 12
+             },
+             callbacks: {
+               title: function(context: TooltipItem<any>[]) {
+                 if (context.length > 0) {
+                   return `${context[0].label}年目`
+                 }
+                 return ''
+               },
+               label: function(context: TooltipItem<any>) {
+                 const value = context.parsed.y
+                 return `${context.dataset.label}: ${NumberFormatter.currency(value, { compact: true })}`
+               },
+               labelPointStyle: function(context) {
+                 return {
+                   pointStyle: 'circle', // ツールチップ内のアイコンも丸に
+                   rotation: 0
+                 }
+               }
+             }
+           }
+         },
         scales: {
           x: {
             grid: {
@@ -353,8 +460,7 @@ export class ChartConfigManager {
             radius: 0, // 常時非表示
             hoverRadius: 5, // ホバー時のみ表示
             borderWidth: 0, // ボーダーも非表示
-            backgroundColor: 'transparent', // 背景も透明
-            pointStyle: false // ポイントスタイル無効
+            backgroundColor: 'transparent' // 背景も透明
           }
         }
       }

@@ -168,14 +168,16 @@ export class GrowthChart {
         label: `${contributionYear}年目`,
         data: areaData,
         backgroundColor: ChartConfigManager.hexToRgba(baseColor, alpha),
-        borderColor: ChartConfigManager.hexToRgba(baseColor, Math.min(1, alpha + 0.3)),
+        borderColor: ChartConfigManager.hexToRgba(baseColor, alpha),
         borderWidth: 0.1, // より細いボーダー
         fill: 'origin',
         tension: 0.1,
         pointRadius: 0, // 常時非表示
         pointHoverRadius: 4, // ホバー時のみ表示
-        pointBackgroundColor: baseColor,
-        pointBorderColor: '#ffffff',
+        pointBackgroundColor: ChartConfigManager.hexToRgba(baseColor, alpha),
+        pointBorderColor: baseColor,
+        // pointBackgroundColor: baseColor,
+        // pointBorderColor: '#ffffff',
         pointBorderWidth: 0, // ポイントボーダーも非表示
         pointStyle: false, // ポイントスタイル無効
         showLine: true, // 線は表示

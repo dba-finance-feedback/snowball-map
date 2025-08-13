@@ -78,43 +78,46 @@ export class ContributionChart {
   /**
    * データ更新
    */
-  update(yearlyContributions: YearlyContribution[], params?: { annualRate: number }): void {
-    if (!this.chart) {
-      console.error('❌ チャートが初期化されていません')
-      return
-    }
+   update(yearlyContributions: YearlyContribution[], params?: { annualRate: number }): void {
+     if (!this.chart) {
+       console.error('❌ チャートが初期化されていません')
+       return
+     }
 
-    try {
-      const chartData = this.prepareChartData(yearlyContributions, params?.annualRate || 0.05)
-      
-      // データ更新
-      this.chart.data = chartData
-      
-      // レスポンシブ設定更新
-      const containerWidth = this.container.offsetWidth
-      const responsiveConfig = ChartConfigManager.getResponsiveConfig(containerWidth)
-      
-      if (this.chart.options) {
-        Object.assign(this.chart.options, responsiveConfig)
-      }
-      
-      // チャート再描画
-      this.chart.update(APP_CONFIG.chart.animation ? 'active' : 'none')
-      
-      // アクセシビリティ更新
-      this.updateAccessibility(yearlyContributions)
-      
-      if (DEV_CONFIG.debug) {
-        console.log('📊 寄与度チャート更新完了:', {
-          dataPoints: yearlyContributions.length,
-          maxContribution: Math.max(...yearlyContributions.map(y => y.contribution))
-        })
-      }
-    } catch (error) {
-      console.error('❌ 寄与度チャート更新エラー:', error)
-      this.showChartError('チャートの更新に失敗しました')
-    }
-  }
+     try {
+       const chartData = this.prepareChartData(yearlyContributions, params?.annualRate || 0.05)
+       
+       // データ更新
+       this.chart.data = chartData
+       
+       // レスポンシブ設定更新
+       const containerWidth = this.container.offsetWidth
+       const responsiveConfig = ChartConfigManager.getResponsiveConfig(containerWidth)
+       
+       if (this.chart.options) {
+         Object.assign(this.chart.options, responsiveConfig)
+       }
+       
+       // チャート再描画
+       this.chart.update(APP_CONFIG.chart.animation ? 'active' : 'none')
+       
+       // カスタム凡例生成を削除（この行を削除）
+       // this.generateCustomLegend(chartData.datasets)
+       
+       // アクセシビリティ更新
+       this.updateAccessibility(yearlyContributions)
+       
+       if (DEV_CONFIG.debug) {
+         console.log('📊 寄与度チャート更新完了:', {
+           dataPoints: yearlyContributions.length,
+           maxContribution: Math.max(...yearlyContributions.map(y => y.contribution))
+         })
+       }
+     } catch (error) {
+       console.error('❌ 寄与度チャート更新エラー:', error)
+       this.showChartError('チャートの更新に失敗しました')
+     }
+   }
 
   /**
    * チャートデータ準備
@@ -167,11 +170,10 @@ export class ContributionChart {
         backgroundColor: ChartConfigManager.hexToRgba(colors.borderColor[startYear - 1], alpha * 0.2),
         borderWidth: startYear <= 5 ? 2 : 1, // 初期の年は太く
         pointRadius: 0, // 常時非表示
-        pointHoverRadius: 0, // ホバー時も非表示
+        pointHoverRadius: 1, // ホバー時も非表示
         pointBackgroundColor: 'transparent',
         pointBorderColor: 'transparent',
         pointBorderWidth: 0, // ポイントボーダーも非表示
-        pointStyle: false as const, // ポイント完全無効
         showLine: true, // 線は表示
         tension: 0.2, // 滑らかな成長曲線
         fill: false,
@@ -306,19 +308,25 @@ export class ContributionChart {
   /**
    * コンポーネント破棄
    */
-  destroy(): void {
-    if (this.chart) {
-      this.chart.destroy()
-      this.chart = null
-    }
-    
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-      this.resizeObserver = null
-    }
-    
-    if (DEV_CONFIG.debug) {
-      console.log('🗑️ 寄与度チャート破棄完了')
-    }
-  }
+   destroy(): void {
+     if (this.chart) {
+       this.chart.destroy()
+       this.chart = null
+     }
+     
+     if (this.resizeObserver) {
+       this.resizeObserver.disconnect()
+       this.resizeObserver = null
+     }
+     
+     // 既存の凡例コンテナがあれば削除
+     const legendContainer = document.getElementById('contribution-legend-container')
+     if (legendContainer) {
+       legendContainer.remove()
+     }
+     
+     if (DEV_CONFIG.debug) {
+       console.log('🗑️ 寄与度チャート破棄完了')
+     }
+   }
 }
