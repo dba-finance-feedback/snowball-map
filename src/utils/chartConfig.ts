@@ -219,13 +219,12 @@ export class ChartConfigManager {
                labelColor: function(context: TooltipItem<any>) {
                  const dataset = context.dataset
                  return {
-                   borderColor: dataset.borderColor || '#000',
-                   backgroundColor: dataset.borderColor || dataset.backgroundColor || '#000',
+                   borderColor: dataset.borderColor as string || '#000',
+                   backgroundColor: dataset.borderColor as string || dataset.backgroundColor as string || '#000',
                    borderWidth: 2,
                    borderRadius: 2,
-                   borderDash: [],
-                   borderDashOffset: 0,
-                   display: true
+                   borderDash: [1, 1] as [number, number],
+                   borderDashOffset: 0
                  }
                }
              }
@@ -345,12 +344,12 @@ export class ChartConfigManager {
                    
                    return {
                      text: dataset.label || '',
-                     fillStyle: dataset.backgroundColor || dataset.borderColor,
-                     strokeStyle: dataset.borderColor,
-                     lineWidth: dataset.borderWidth || 1,
+                     fillStyle: (dataset.backgroundColor || dataset.borderColor) as string,
+                     strokeStyle: dataset.borderColor as string,
+                     lineWidth: dataset.borderWidth as number || 1,
                      hidden: hidden,
                      index: i,
-                     pointStyle: 'circle', // 丸に統一
+                     pointStyle: 'circle' as const,
                      rotation: 0
                    }
                  })
@@ -387,9 +386,9 @@ export class ChartConfigManager {
                  const value = context.parsed.y
                  return `${context.dataset.label}: ${NumberFormatter.currency(value, { compact: true })}`
                },
-               labelPointStyle: function(context) {
+               labelPointStyle: function(_context) {
                  return {
-                   pointStyle: 'circle', // ツールチップ内のアイコンも丸に
+                   pointStyle: 'circle' as const,
                    rotation: 0
                  }
                }
