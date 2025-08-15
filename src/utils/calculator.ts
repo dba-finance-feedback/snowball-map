@@ -19,7 +19,7 @@ export class InvestmentCalculator {
     const yearlyContributions = this.calculateYearlyContributions(params)
     
     const totalValue = yearlyContributions.reduce((sum, year) => sum + year.currentValue, 0)
-    const totalContributed = params.monthlyAmount * 12 * params.years
+    const totalContributed = params.annualAmount * params.years
     const totalProfit = totalValue - totalContributed
     const profitRate = totalContributed > 0 ? totalProfit / totalContributed : 0
 
@@ -37,11 +37,10 @@ export class InvestmentCalculator {
    * 各年に積み立てた資金が最終的にどの程度の価値を持つかを計算
    */
   private calculateYearlyContributions(params: InvestmentParams): YearlyContribution[] {
-    const { monthlyAmount, annualRate, years } = params
+    const { annualAmount, annualRate, years } = params
     const contributions: YearlyContribution[] = []
 
     for (let year = 1; year <= years; year++) {
-      const annualAmount = monthlyAmount * 12
       const remainingYears = years - year
       
       // その年の積立が最終時点で持つ価値（複利計算）
@@ -53,7 +52,6 @@ export class InvestmentCalculator {
 
       contributions.push({
         year,
-        monthlyAmount,
         annualAmount,
         totalContributed: annualAmount * year,
         currentValue,
@@ -95,7 +93,7 @@ export class InvestmentCalculator {
    * 各年の積立が経年でどのように成長するかを表現
    */
   generateGrowthStageData(params: InvestmentParams): GrowthStageData[] {
-    const { monthlyAmount, annualRate, years } = params
+    const { annualAmount, annualRate, years } = params
     const growthData: GrowthStageData[] = []
 
     // 各経過年（1年目〜30年目）について
@@ -105,7 +103,6 @@ export class InvestmentCalculator {
 
       // その時点までに積み立てた各年の価値を計算
       for (let contributedYear = 1; contributedYear <= currentYear; contributedYear++) {
-        const annualAmount = monthlyAmount * 12
         const yearsGrown = currentYear - contributedYear
         
         const value = this.calculateFutureValue(annualAmount, annualRate, yearsGrown)
@@ -127,74 +124,6 @@ export class InvestmentCalculator {
     return growthData
   }
 
-  /**
-   * 月次複利計算（より正確な計算）
-   * 実際の積立投資では月次で複利が発生するため
-   */
-  calculateWithMonthlyCompounding(params: InvestmentParams): InvestmentResult {
-    const { monthlyAmount, annualRate, years } = params
-    const monthlyRate = annualRate / 12
-    const totalMonths = years * 12
-    
-    let totalValue = 0
-    const yearlyContributions: YearlyContribution[] = []
-
-    // 年次別に処理
-    for (let year = 1; year <= years; year++) {
-      const yearStartMonth = (year - 1) * 12
-      const yearEndMonth = year * 12
-      let yearValue = 0
-
-      // その年の各月の積立を計算
-      for (let month = yearStartMonth; month < yearEndMonth; month++) {
-        const remainingMonths = totalMonths - month
-        const futureValue = this.calculateMonthlyFutureValue(
-          monthlyAmount,
-          monthlyRate,
-          remainingMonths
-        )
-        yearValue += futureValue
-      }
-
-      yearlyContributions.push({
-        year,
-        monthlyAmount,
-        annualAmount: monthlyAmount * 12,
-        totalContributed: monthlyAmount * 12 * year,
-        currentValue: yearValue,
-        contribution: yearValue
-      })
-
-      totalValue += yearValue
-    }
-
-    const totalContributed = monthlyAmount * totalMonths
-    const totalProfit = totalValue - totalContributed
-    const profitRate = totalContributed > 0 ? totalProfit / totalContributed : 0
-
-    return {
-      totalValue,
-      totalContributed,
-      totalProfit,
-      profitRate,
-      yearlyContributions
-    }
-  }
-
-  /**
-   * 月次複利の将来価値計算
-   */
-  private calculateMonthlyFutureValue(
-    monthlyPayment: number,
-    monthlyRate: number,
-    months: number
-  ): number {
-    if (monthlyRate === 0) {
-      return monthlyPayment
-    }
-
-    return monthlyPayment * Math.pow(1 + monthlyRate, months)
-  }
 
   /**
    * パフォーマンス統計計算

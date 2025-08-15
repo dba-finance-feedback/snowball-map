@@ -8,8 +8,8 @@ import type {
  * 一般的な積立投資のモデルケースとして設定
  */
 export const DEFAULT_INVESTMENT_PARAMS: InvestmentParams = {
-  monthlyAmount: 33333,    // 月3万円（年40万円）
-  annualRate: 0.05,        // 年利5%（インデックス投資の長期平均的リターン）
+  annualAmount: 100000,    // 年10万円。シナリオによらず固定
+  annualRate: 0.04,        // 年利4%（インデックス投資の長期平均的リターンをコンサバに）
   years: 30                // 30年間（若年層からの長期投資を想定）
 }
 
@@ -44,9 +44,9 @@ export const INVESTMENT_PRESETS = {
   conservative: {
     name: '保守的シナリオ',
     params: {
-      monthlyAmount: 20000,
-      annualRate: 0.02,  // 2%に調整
-      years: 25
+      annualAmount: 100000,  // 年10万円。シナリオによらず固定
+      annualRate: 0.02,      // 2%に調整
+      years: 30              // 30年。シナリオによらず固定
     },
     description: '低リスク・低リターンの安定運用'
   },
@@ -60,34 +60,14 @@ export const INVESTMENT_PRESETS = {
   aggressive: {
     name: '積極的シナリオ',
     params: {
-      monthlyAmount: 50000,
-      annualRate: 0.07,
-      years: 35
+      annualAmount: 100000,  // 年10万円。シナリオによらず固定
+      annualRate: 0.07,      // 7%に調整
+      years: 30              // 30年。シナリオによらず固定
     },
     description: '高リスク・高リターンを狙った積極運用'
-  },
-  
-  young_starter: {
-    name: '若年層スタート',
-    params: {
-      monthlyAmount: 10000,
-      annualRate: 0.06,
-      years: 40
-    },
-    description: '20代からの少額長期投資'
-  },
-  
-  middle_age: {
-    name: '中年層投資',
-    params: {
-      monthlyAmount: 80000,
-      annualRate: 0.04,
-      years: 15
-    },
-    description: '40代からの資産形成加速'
-  }
+  } 
 } as const
-
+  
 /**
  * 計算精度設定
  */
@@ -101,8 +81,8 @@ export const CALCULATION_CONFIG = {
   // 最大計算可能年数
   maxYears: 50,
   
-  // 最大月次積立額（計算オーバーフロー防止）
-  maxMonthlyAmount: 10000000,
+  // 最大年次積立額（計算オーバーフロー防止）
+  maxAnnualAmount: 100000000,
   
   // 利率の計算精度（小数点以下何桁まで）
   ratePrecision: 6
@@ -158,8 +138,8 @@ export const SUCCESS_MESSAGES = {
  * ツールチップメッセージ
  */
 export const TOOLTIP_MESSAGES = {
-  monthlyAmount: '毎月積み立てる金額を入力してください（1,000円〜10,000,000円）',
-  annualRate: '想定する年間利回りを入力してください（-10%〜30%）',
+  annualAmount: '毎年積み立てる金額を入力してください（1,000円〜100,000,000円）',
+  annualRate: '想定する年間利回りを入力してください（0.01%〜30%）',
   years: '積立を継続する期間を入力してください（1年〜50年）',
   totalValue: '積立期間終了時点での資産総額',
   totalProfit: '元本に対する利益額',

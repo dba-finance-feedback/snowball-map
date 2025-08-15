@@ -8,10 +8,10 @@ import type {
  * 入力値制約の定義
  */
 export const INPUT_CONSTRAINTS: InputConstraints = {
-  monthlyAmount: {
-    min: 1000,        // 最小1,000円
-    max: 10000000,    // 最大10,000,000円
-    step: 1000        // 1,000円単位
+  annualAmount: {
+    min: 1000,       // 最小1,000円
+    max: 100000000,   // 最大1億円
+    step: 1000       // 1,000円単位
   },
   annualRate: {
     min: 0.0001,      // 最小0.01%
@@ -37,9 +37,9 @@ export class InputValidator {
   validate(params: InvestmentParams): ValidationError[] {
     const errors: ValidationError[] = []
 
-    // 月次積立額の検証
-    const monthlyAmountErrors = this.validateMonthlyAmount(params.monthlyAmount)
-    errors.push(...monthlyAmountErrors)
+    // 年次積立額の検証
+    const annualAmountErrors = this.validateAnnualAmount(params.annualAmount)
+    errors.push(...annualAmountErrors)
 
     // 年利率の検証
     const annualRateErrors = this.validateAnnualRate(params.annualRate)
@@ -57,45 +57,45 @@ export class InputValidator {
   }
 
   /**
-   * 月次積立額の検証
+   * 年次積立額の検証
    */
-  private validateMonthlyAmount(monthlyAmount: number): ValidationError[] {
+  private validateAnnualAmount(annualAmount: number): ValidationError[] {
     const errors: ValidationError[] = []
-    const constraints = INPUT_CONSTRAINTS.monthlyAmount
+    const constraints = INPUT_CONSTRAINTS.annualAmount
 
     // 数値型チェック
-    if (typeof monthlyAmount !== 'number' || isNaN(monthlyAmount)) {
+    if (typeof annualAmount !== 'number' || isNaN(annualAmount)) {
       errors.push({
-        field: 'monthlyAmount',
-        message: '月次積立額は数値で入力してください',
-        value: monthlyAmount
+        field: 'annualAmount',
+        message: '年次積立額は数値で入力してください',
+        value: annualAmount
       })
       return errors
     }
 
     // 範囲チェック
-    if (monthlyAmount < constraints.min) {
+    if (annualAmount < constraints.min) {
       errors.push({
-        field: 'monthlyAmount',
-        message: `月次積立額は${constraints.min.toLocaleString()}円以上で入力してください`,
-        value: monthlyAmount
+        field: 'annualAmount',
+        message: `年次積立額は${constraints.min.toLocaleString()}円以上で入力してください`,
+        value: annualAmount
       })
     }
 
-    if (monthlyAmount > constraints.max) {
+    if (annualAmount > constraints.max) {
       errors.push({
-        field: 'monthlyAmount',
-        message: `月次積立額は${constraints.max.toLocaleString()}円以下で入力してください`,
-        value: monthlyAmount
+        field: 'annualAmount',
+        message: `年次積立額は${constraints.max.toLocaleString()}円以下で入力してください`,
+        value: annualAmount
       })
     }
 
     // 正の数チェック
-    if (monthlyAmount <= 0) {
+    if (annualAmount <= 0) {
       errors.push({
-        field: 'monthlyAmount',
-        message: '月次積立額は正の値で入力してください',
-        value: monthlyAmount
+        field: 'annualAmount',
+        message: '年次積立額は正の値で入力してください',
+        value: annualAmount
       })
     }
 
@@ -218,12 +218,12 @@ export class InputValidator {
     const errors: ValidationError[] = []
 
     // 総投資額の計算結果チェック
-    const totalInvestment = params.monthlyAmount * 12 * params.years
+    const totalInvestment = params.annualAmount * params.years
     const maxReasonableInvestment = 100000000000  // 1000億円
 
     if (totalInvestment > maxReasonableInvestment) {
       errors.push({
-        field: 'monthlyAmount',
+        field: 'annualAmount',
         message: '総投資額が非常に大きくなります。現実的な値をご検討ください',
         value: totalInvestment
       })
@@ -246,7 +246,7 @@ export class InputValidator {
    */
   validateField(field: keyof InvestmentParams, value: number): ValidationError[] {
     const tempParams: InvestmentParams = {
-      monthlyAmount: 33333,
+      annualAmount: 400000,
       annualRate: 0.05,
       years: 30
     }
@@ -254,8 +254,8 @@ export class InputValidator {
     tempParams[field] = value
 
     switch (field) {
-      case 'monthlyAmount':
-        return this.validateMonthlyAmount(value)
+      case 'annualAmount':
+        return this.validateAnnualAmount(value)
       case 'annualRate':
         return this.validateAnnualRate(value)
       case 'years':
@@ -292,7 +292,7 @@ export class InputValidator {
    */
   getFieldDisplayName(field: keyof InvestmentParams): string {
     const displayNames = {
-      monthlyAmount: '月次積立額',
+      annualAmount: '年次積立額',
       annualRate: '想定年利',
       years: '積立期間'
     }

@@ -34,25 +34,25 @@ export class InputForm {
         
         <form id="investment-form" novalidate>
           <div class="form-group">
-            <label for="monthly-amount">
-              月次積立額 <span class="unit">(円)</span>
+            <label for="annual-amount">
+              年次積立額 <span class="unit">(円)</span>
             </label>
             <input 
               type="number" 
-              id="monthly-amount" 
-              name="monthlyAmount"
-              value="${DEFAULT_INVESTMENT_PARAMS.monthlyAmount}"
-              min="${INPUT_CONSTRAINTS.monthlyAmount.min}" 
-              max="${INPUT_CONSTRAINTS.monthlyAmount.max}"
-              step="${INPUT_CONSTRAINTS.monthlyAmount.step}"
+              id="annual-amount" 
+              name="annualAmount"
+              value="${DEFAULT_INVESTMENT_PARAMS.annualAmount}"
+              min="${INPUT_CONSTRAINTS.annualAmount.min}" 
+              max="${INPUT_CONSTRAINTS.annualAmount.max}"
+              step="${INPUT_CONSTRAINTS.annualAmount.step}"
               class="form-input"
               required
             >
             <div class="input-help">
-              ${INPUT_CONSTRAINTS.monthlyAmount.min.toLocaleString()}円 〜 
-              ${INPUT_CONSTRAINTS.monthlyAmount.max.toLocaleString()}円
+              ${INPUT_CONSTRAINTS.annualAmount.min.toLocaleString()}円 〜 
+              ${INPUT_CONSTRAINTS.annualAmount.max.toLocaleString()}円
             </div>
-            <div class="error-message" id="monthly-amount-error"></div>
+            <div class="error-message" id="annual-amount-error"></div>
           </div>
 
           <div class="form-group">
@@ -120,15 +120,9 @@ export class InputForm {
         
         <div class="calculation-summary">
           <div class="summary-item">
-            <span class="summary-label">年間積立額:</span>
-            <span class="summary-value" id="annual-amount">
-              ${NumberFormatter.currency(DEFAULT_INVESTMENT_PARAMS.monthlyAmount * 12)}
-            </span>
-          </div>
-          <div class="summary-item">
             <span class="summary-label">総積立額:</span>
             <span class="summary-value" id="total-contribution">
-              ${NumberFormatter.currency(DEFAULT_INVESTMENT_PARAMS.monthlyAmount * 12 * DEFAULT_INVESTMENT_PARAMS.years)}
+              ${NumberFormatter.currency(DEFAULT_INVESTMENT_PARAMS.annualAmount * DEFAULT_INVESTMENT_PARAMS.years)}
             </span>
           </div>
         </div>
@@ -229,7 +223,7 @@ export class InputForm {
     const formData = new FormData(this.form)
     
     return {
-      monthlyAmount: NumberFormatter.safe(formData.get('monthlyAmount'), DEFAULT_INVESTMENT_PARAMS.monthlyAmount),
+      annualAmount: NumberFormatter.safe(formData.get('annualAmount'), DEFAULT_INVESTMENT_PARAMS.annualAmount),
       annualRate: NumberFormatter.safe(formData.get('annualRate'), DEFAULT_INVESTMENT_PARAMS.annualRate * 100) / 100,
       years: NumberFormatter.safe(formData.get('years'), DEFAULT_INVESTMENT_PARAMS.years)
     }
@@ -292,15 +286,10 @@ export class InputForm {
   private updateCalculationSummary(): void {
     const params = this.getValues()
     
-    const annualAmountElement = document.getElementById('annual-amount')
     const totalContributionElement = document.getElementById('total-contribution')
     
-    if (annualAmountElement) {
-      annualAmountElement.textContent = NumberFormatter.currency(params.monthlyAmount * 12)
-    }
-    
     if (totalContributionElement) {
-      totalContributionElement.textContent = NumberFormatter.currency(params.monthlyAmount * 12 * params.years)
+      totalContributionElement.textContent = NumberFormatter.currency(params.annualAmount * params.years)
     }
   }
 
@@ -327,11 +316,11 @@ export class InputForm {
    * フォーム値を設定
    */
   private setValues(params: InvestmentParams): void {
-    const monthlyAmountInput = document.getElementById('monthly-amount') as HTMLInputElement
+    const annualAmountInput = document.getElementById('annual-amount') as HTMLInputElement
     const annualRateInput = document.getElementById('annual-rate') as HTMLInputElement
     const yearsInput = document.getElementById('years') as HTMLInputElement
 
-    if (monthlyAmountInput) monthlyAmountInput.value = params.monthlyAmount.toString()
+    if (annualAmountInput) annualAmountInput.value = params.annualAmount.toString()
     if (annualRateInput) annualRateInput.value = (params.annualRate * 100).toFixed(1)
     if (yearsInput) yearsInput.value = params.years.toString()
 
@@ -351,7 +340,7 @@ export class InputForm {
    */
   private getInputId(field: keyof InvestmentParams): string {
     const mapping = {
-      monthlyAmount: 'monthly-amount',
+      annualAmount: 'annual-amount',
       annualRate: 'annual-rate',
       years: 'years'
     }

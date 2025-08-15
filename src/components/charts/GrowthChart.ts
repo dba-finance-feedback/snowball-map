@@ -151,7 +151,7 @@ export class GrowthChart {
         } else {
           // その年の積立のcurrentYear時点での価値（単体値）
           const yearsGrown = currentYear - contributionYear
-          const annualAmount = params.monthlyAmount * 12
+          const annualAmount = params.annualAmount
           const currentValue = annualAmount * Math.pow(1 + params.annualRate, yearsGrown)
           areaData.push(currentValue)
         }
@@ -189,8 +189,8 @@ export class GrowthChart {
     // 元本累計ライン（赤いライン・直線）を追加
     const principalData = []
     for (let currentYear = 1; currentYear <= params.years; currentYear++) {
-      // 元本累計 = 月次積立額 × 12 × 経過年数
-      const principalTotal = params.monthlyAmount * 12 * currentYear
+      // 元本累計 = 年次積立額 × 経過年数
+      const principalTotal = params.annualAmount * currentYear
       principalData.push(principalTotal)
     }
     
@@ -250,7 +250,7 @@ export class GrowthChart {
       for (let contributionYear = 1; contributionYear <= currentYear; contributionYear++) {
         const yearsGrown = currentYear - contributionYear
         const value = this.calculateCompoundValue(
-          params.monthlyAmount * 12,
+          params.annualAmount,
           params.annualRate,
           yearsGrown
         )
@@ -272,7 +272,7 @@ export class GrowthChart {
           } else {
             // この年の積立分のみの寄与
             const thisYearValue = this.calculateCompoundValue(
-              params.monthlyAmount * 12,
+              params.annualAmount,
               params.annualRate,
               currentYear - contributionYear
             )
@@ -311,7 +311,7 @@ export class GrowthChart {
       for (let contributionYear = 1; contributionYear <= currentYear; contributionYear++) {
         const yearsGrown = currentYear - contributionYear
         const value = this.calculateCompoundValue(
-          params.monthlyAmount * 12,
+          params.annualAmount,
           params.annualRate,
           yearsGrown
         )
@@ -362,7 +362,7 @@ export class GrowthChart {
    */
   private updateAccessibility(yearlyContributions: YearlyContribution[], params: InvestmentParams): void {
     const totalValue = yearlyContributions.reduce((sum, y) => sum + y.contribution, 0)
-    const totalContributed = params.monthlyAmount * 12 * params.years
+    const totalContributed = params.annualAmount * params.years
     const profit = totalValue - totalContributed
     
     const description = [
@@ -411,11 +411,11 @@ export class GrowthChart {
     
     const analysis = {
       投資期間: `${params.years}年`,
-      月次積立額: NumberFormatter.currency(params.monthlyAmount),
+      年次積立額: NumberFormatter.currency(params.annualAmount),
       想定年利: NumberFormatter.percentage(params.annualRate),
       最終資産額: NumberFormatter.currency(yearlyContributions.reduce((sum, y) => sum + y.contribution, 0)),
-      元本総額: NumberFormatter.currency(params.monthlyAmount * 12 * params.years),
-      利益総額: NumberFormatter.currency(yearlyContributions.reduce((sum, y) => sum + y.contribution, 0) - params.monthlyAmount * 12 * params.years),
+      元本総額: NumberFormatter.currency(params.annualAmount * params.years),
+      利益総額: NumberFormatter.currency(yearlyContributions.reduce((sum, y) => sum + y.contribution, 0) - params.annualAmount * params.years),
       各年別寄与度: yearlyContributions.map(y => ({
         年: y.year,
         寄与額: NumberFormatter.currency(y.contribution),

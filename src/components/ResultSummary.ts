@@ -101,8 +101,8 @@ export class ResultSummary {
               <div class="indicator-value" id="investment-period">-</div>
             </div>
             <div class="indicator">
-              <div class="indicator-label">月次収益率</div>
-              <div class="indicator-value" id="monthly-return">-</div>
+              <div class="indicator-label">年次収益率</div>
+              <div class="indicator-value" id="annual-return">-</div>
             </div>
             <div class="indicator">
               <div class="indicator-label">最大寄与年</div>
@@ -146,8 +146,8 @@ export class ResultSummary {
       totalContributedElement.textContent = NumberFormatter.currency(result.totalContributed, { compact: true })
     }
     if (contributionSubtitle) {
-      const monthlyAmount = result.totalContributed / (result.yearlyContributions.length * 12)
-      contributionSubtitle.textContent = `月額 ${NumberFormatter.currency(monthlyAmount, { compact: true })}`
+      const annualAmount = result.totalContributed / result.yearlyContributions.length
+      contributionSubtitle.textContent = `年額 ${NumberFormatter.currency(annualAmount, { compact: true })}`
     }
 
     // 利益総額
@@ -220,15 +220,15 @@ export class ResultSummary {
       investmentPeriodElement.textContent = `${years}年間`
     }
 
-    // 月次収益率（概算）
-    const monthlyReturnElement = document.getElementById('monthly-return')
-    if (monthlyReturnElement) {
+    // 年次収益率（概算）
+    const annualReturnElement = document.getElementById('annual-return')
+    if (annualReturnElement) {
       if (years > 0) {
         const totalReturn = result.profitRate
-        const monthlyReturn = Math.pow(1 + totalReturn, 1 / (years * 12)) - 1
-        monthlyReturnElement.textContent = NumberFormatter.percentage(monthlyReturn, 3)
+        const annualReturn = Math.pow(1 + totalReturn, 1 / years) - 1
+        annualReturnElement.textContent = NumberFormatter.percentage(annualReturn, 2)
       } else {
-        monthlyReturnElement.textContent = '0.000%'
+        annualReturnElement.textContent = '0.00%'
       }
     }
 
