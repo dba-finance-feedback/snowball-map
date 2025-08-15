@@ -270,10 +270,9 @@ export class ContributionChart {
    * データをCSVとして出力
    */
   exportAsCSV(yearlyContributions: YearlyContribution[], filename = 'contribution-data.csv'): void {
-    const headers = ['年', '月次積立額', '年間積立額', '最終寄与額']
+    const headers = ['年', '年間積立額', '最終寄与額']
     const rows = yearlyContributions.map(y => [
       y.year,
-      y.monthlyAmount,
       y.annualAmount,
       y.contribution
     ])

@@ -148,7 +148,7 @@ class SnowballMapApp {
   private handleParameterChange(params: InvestmentParams): void {
     if (DEV_CONFIG.debug) {
       console.log('📈 パラメータ変更:', {
-        monthlyAmount: params.monthlyAmount,
+        annualAmount: params.annualAmount,
         annualRate: (params.annualRate * 100).toFixed(1) + '%',
         years: params.years
       })

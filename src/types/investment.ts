@@ -2,7 +2,7 @@
  * 投資パラメータ
  */
 export interface InvestmentParams {
-  monthlyAmount: number;    // 月次積立額（円）
+  annualAmount: number;     // 年次積立額（円）
   annualRate: number;       // 年利率（小数点: 0.05 = 5%）
   years: number;            // 積立期間（年）
 }
@@ -12,7 +12,6 @@ export interface InvestmentParams {
  */
 export interface YearlyContribution {
   year: number;             // 積立年（1年目、2年目...）
-  monthlyAmount: number;    // その年の月次積立額
   annualAmount: number;     // その年の年間積立額
   totalContributed: number; // その年までの累積元本
   currentValue: number;     // 最終時点でのその年の積立価値
@@ -52,7 +51,7 @@ export interface ValidationError {
  * 入力値の制約
  */
 export interface InputConstraints {
-  monthlyAmount: {
+  annualAmount: {
     min: number;
     max: number;
     step: number;
